@@ -4,12 +4,6 @@ from matrix import Vector
 from matrix import flatten_list
 import numpy as np
 
-# def suite():
-    # suite = unittest.TestLoader().loadTestsFromTestCase(TestMatrixInit)
-    # return suite
-
-
-
 
 class TestMatrixInit(unittest.TestCase):
 
@@ -17,11 +11,11 @@ class TestMatrixInit(unittest.TestCase):
         self.lst_two_by_two = [[0.0, 1.0], [2.0, 3.0]]
         self.lst_two_by_three = [[0.0, 1.0, -1.0], [2.0, 3.0, -2.0]]
         self.lst_three_by_two = [[0.0, 1.0], [2.0, 3.0], [-1.0, -2.0]]
-        self.shape_two_by_two = (2,2)
-        self.shape_two_by_three = (2,3)
-        self.lst_three_by_variable_len = [[0.0, 1.0], [2.0, 3.0, 42.0], [-1.0, -2.0]]
+        self.shape_two_by_two = (2, 2)
+        self.shape_two_by_three = (2, 3)
+        self.lst_variable_len = [[0.0, 1.0], [2.0, 3.0, 42.0], [-1.0, -2.0]]
         self.lst2_col = [[5.0], [6.0], [7.0], [8.0], [9.0]]
-    
+
     def test_init_matrix_from_two_by_two_lst(self):
         M1 = Matrix(self.lst_two_by_two)
         self.assertListEqual(M1.data, self.lst_two_by_two)
@@ -52,7 +46,7 @@ class TestMatrixInit(unittest.TestCase):
     def test_error_list_of_different_sizes(self):
         with self.assertRaises(ValueError) as e:
             expected = f"Sub-elements of Matrix must be of same size"
-            M1 = Matrix(self.lst_three_by_variable_len)
+            M1 = Matrix(self.lst_variable_len)
         self.assertEqual(str(e.exception), expected)
 
     def test_type_error_invalid_init_val(self):
@@ -95,18 +89,21 @@ class TestMatrixInit(unittest.TestCase):
             M1 = Matrix(invalid_list_type)
         self.assertEqual(str(e.exception), expected)
 
+
 class TestMatrixCalculus(unittest.TestCase):
     def setUp(self):
+        # Intialization
         self.lst1_two_by_two = [[0.0, 1.0], [2.0, 3.0]]
         self.lst2_two_by_two = [[1.0, 3.0], [-2.0, 5.0]]
         self.lst1_two_by_three = [[0.0, 1.0, -1.0], [2.0, 3.0, -2.0]]
         self.lst2_two_by_three = [[5.0, 4.0, -2.0], [2.0, -3.0, 4.0]]
         self.lst1_three_by_two = [[0.0, 1.0], [2.0, 3.0], [-1.0, -2.0]]
         self.lst2_three_by_two = [[0.0, -1.0], [-5.0, -3.0], [1.0, -2.0]]
-        self.shape_two_by_two = (2,2)
-        self.shape_two_by_three = (2,3)
-        self.lst_three_by_variable_len = [[0.0, 1.0], [2.0, 3.0, 42.0], [-1.0, -2.0]]
+        self.shape_two_by_two = (2, 2)
+        self.shape_two_by_three = (2, 3)
+        self.lst_variable_len = [[0.0, 1.0], [2.0, 3.0, 42.0], [-1.0, -2.0]]
         self.lst2_col = [[5.0], [6.0], [7.0], [8.0], [9.0]]
+        # Matrice
         self.M1_two_by_two = Matrix(self.lst1_two_by_two)
         self.M2_two_by_two = Matrix(self.lst2_two_by_two)
         self.arr1_two_by_two = np.array(self.lst1_two_by_two)
@@ -119,6 +116,15 @@ class TestMatrixCalculus(unittest.TestCase):
         self.M2_three_by_two = Matrix(self.lst2_three_by_two)
         self.arr1_three_by_two = np.array(self.lst1_three_by_two)
         self.arr2_three_by_two = np.array(self.lst2_three_by_two)
+        # Vectors
+        self.lst1_col_three = [[0.0], [1.0], [2.0]]
+        self.lst2_col_two = [[5.0], [6.0]]
+        self.lst1_row_three = [[0.0, 1.0, 2.0]]
+        self.lst2_row_two = [[5.0, 6.0]]
+        self.v1_col_three = Vector(self.lst1_col_three)
+        self.v2_col_two = Vector(self.lst2_col_two)
+        self.v1_row_three = Vector(self.lst1_row_three)
+        self.v2_row_two = Vector(self.lst2_row_two)
 
     def test_add_two_by_two_matrices(self):
         res = self.M1_two_by_two + self.M2_two_by_two
@@ -241,27 +247,93 @@ class TestMatrixCalculus(unittest.TestCase):
 
     def test_mul_two_by_two_matrices(self):
         res = self.M1_two_by_two * self.M2_two_by_two
-        expected = list(self.arr1_two_by_two * self.arr2_two_by_two)
+        expected = list(np.dot(self.arr1_two_by_two, self.arr2_two_by_two))
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+
+    def test_mul_two_by_two_matrix_by_vector(self):
+        res = self.M1_two_by_two * self.v2_col_two
+        arr = np.array(self.lst2_col_two)
+        expected = list(np.dot(self.arr1_two_by_two, arr))
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+
+    def test_mul_vector_by_two_by_two_matrix(self):
+        res = self.v2_row_two * self.M1_two_by_two
+        arr = np.array(self.lst2_row_two)
+        expected = list(np.dot(arr, self.arr1_two_by_two))
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+
+    def test_mul_vector_by_three_by_two_matrix(self):
+        res = self.v1_row_three * self.M1_three_by_two
+        arr = np.array(self.lst1_row_three)
+        expected = list(np.dot(arr, self.arr1_three_by_two))
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+
+    def test_mul_two_by_three_matrix_by_vector(self):
+        res = self.M1_two_by_three * self.v1_col_three
+        arr = np.array(self.lst1_col_three)
+        expected = list(np.dot(self.arr1_two_by_three, arr))
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+
+    def test_mul_two_by_three_matrices(self):
+        res = self.M1_two_by_three * self.M2_three_by_two
+        expected = list(np.dot(self.arr1_two_by_three, self.arr2_three_by_two))
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+
+    def test_mul_three_by_two_matrices(self):
+        res = self.M1_three_by_two * self.M2_two_by_three
+        expected = list(np.dot(self.arr1_three_by_two, self.arr2_two_by_three))
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+
+    def test_rmul_two_by_two_matrices(self):
+        res = self.M1_two_by_two.__rmul__(self.M2_two_by_two)
+        expected = list(np.dot(self.arr2_two_by_two, self.arr1_two_by_two))
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+
+    def test_rmul_two_by_three_matrices(self):
+        res = self.M1_two_by_three.__rmul__(self.M2_three_by_two)
+        expected = list(np.dot(self.arr2_three_by_two, self.arr1_two_by_three))
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+
+    def test_rmul_three_by_two_matrices(self):
+        res = self.M1_three_by_two.__rmul__(self.M2_two_by_three)
+        expected = list(np.dot(self.arr2_two_by_three, self.arr1_three_by_two))
         self.assertListEqual(flatten_list(res.data), flatten_list(expected))
 
     def test_repr_two_by_two_matrix(self):
         res = self.M1_two_by_two
-        expected = f"Matrix({self.lst1_two_by_two}, (2, 2)"
+        expected = f"Matrix({self.lst1_two_by_two}, (2, 2))"
         self.assertEqual(res.__repr__(), expected)
 
     def test_str_two_by_two_matrix(self):
         res = self.M1_two_by_two
         expected = f"Matrix data: "
-        expected += f"{self.lst1_two_by_two} and shape: (2, 2)"
+        expected += f"{self.lst1_two_by_two} and shape: (2, 2))"
         self.assertEqual(str(res), expected)
 
+    def test_transpose_two_by_two_matrix(self):
+        res = self.M1_two_by_two.T()
+        expected = np.transpose(self.arr1_two_by_two)
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
 
-class TestVectorOutput(unittest.TestCase):
+    def test_transpose_two_by_three_matrix(self):
+        res = self.M1_two_by_three.T()
+        expected = np.transpose(self.arr1_two_by_three)
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+        self.assertEqual(res.shape, (3, 2))
+
+    def test_transpose_three_by_two_matrix(self):
+        res = self.M1_three_by_two.T()
+        expected = np.transpose(self.arr1_three_by_two)
+        self.assertListEqual(flatten_list(res.data), flatten_list(expected))
+        self.assertEqual(res.shape, (2, 3))
+
+
+class TestVectorInit(unittest.TestCase):
     def setUp(self):
         self.lst1_col = [[0.0], [1.0], [2.0], [3.0], [4.0]]
         self.lst2_col = [[5.0], [6.0], [7.0], [8.0], [9.0]]
-        self.lst1_row = [0.0, 1.0, 2.0, 3.0, 4.0]
-        self.lst2_row = [5.0, 6.0, 7.0, 8.0, 9.0]
+        self.lst1_row = [[0.0, 1.0, 2.0, 3.0, 4.0]]
+        self.lst2_row = [[5.0, 6.0, 7.0, 8.0, 9.0]]
         self.v1_col = Vector(self.lst1_col)
         self.v2_col = Vector(self.lst2_col)
         self.v1_row = Vector(self.lst1_row)
@@ -276,165 +348,98 @@ class TestVectorOutput(unittest.TestCase):
     def test_init_vector_as_row(self):
         v1 = Vector(self.lst1_row)
         expected = np.array(self.lst1_row)
-        self.assertListEqual(v1.values, list(expected))
+        expected = list(expected)
+        self.assertListEqual(flatten_list(v1.data), flatten_list(expected))
 
     def test_init_vector_as_column(self):
         v1 = Vector(self.lst1_col)
         expected = list(np.array(self.lst1_col))
-        self.assertListEqual(v1.values, list(expected))
+        self.assertListEqual(v1.data, list(expected))
 
-    def test_init_vector_with_size(self):
-        v1 = Vector(3)
-        expected = np.arange(stop=3, dtype=float)
-        self.assertListEqual(v1.values, list(expected))
+    def test_init_vector_row_as_tuple(self):
+        v1 = Vector((1, 5))
+        expected = 0
+        self.assertEqual(sum(flatten_list(v1.data)), expected)
 
-    def test_init_vector_as_tuple(self):
-        v1 = Vector((10, 15))
-        expected = np.arange(start=10, stop=15, step=1, dtype=float)
-        self.assertListEqual(v1.values, list(expected))
+    def test_init_vector_col_as_tuple(self):
+        v1 = Vector((5, 1))
+        expected = 0
+        self.assertEqual(sum(flatten_list(v1.data)), expected)
+
+
+class TestVectorOutput(unittest.TestCase):
+    def setUp(self):
+        self.lst1_col = [[0.0], [1.0], [2.0], [3.0], [4.0]]
+        self.lst2_col = [[5.0], [6.0], [7.0], [8.0], [9.0]]
+        self.lst1_row = [[0.0, 1.0, 2.0, 3.0, 4.0]]
+        self.lst2_row = [[5.0, 6.0, 7.0, 8.0, 9.0]]
+        self.v1_col = Vector(self.lst1_col)
+        self.v2_col = Vector(self.lst2_col)
+        self.v1_row = Vector(self.lst1_row)
+        self.v2_row = Vector(self.lst2_row)
+        self.arr1_col = np.array(self.lst1_col)
+        self.arr2_col = np.array(self.lst2_col)
+        self.arr1_row = np.array(self.lst1_row)
+        self.arr2_row = np.array(self.lst2_row)
+        self.s1 = 2
 
     # Testing vector addition
-    def test_add_builtin_column_vector(self):
-        expected = np.add(self.arr1_col, self.arr2_col)
-        yours = self.v1_col.__add__(self.v2_col)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_aadd_sign_builtin_column_vector(self):
-        expected = np.add(self.arr1_col, self.arr2_col)
-        yours = self.v1_col + self.v2_col
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_add_builtin_row_vector(self):
-        expected = np.add(self.arr1_row, self.arr2_row)
-        yours = self.v1_row.__add__(self.v2_row)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_add_sign_builtin_row_vector(self):
-        expected = np.add(self.arr1_row, self.arr2_row)
-        yours = self.v1_row + (self.v2_row)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_radd_builtin_column_vector(self):
-        expected = np.add(self.arr2_col, self.arr1_col)
-        yours = self.v1_col.__radd__(self.v2_col)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_radd_builtin_row_vector(self):
-        expected = np.add(self.arr2_row, self.arr1_row)
-        yours = self.v1_row.__radd__(self.v2_row)
-        self.assertListEqual(yours.values, list(expected))
-
-# Testing vector subtraction
-    def test_sub_builtin_column_vectors(self):
-        expected = np.subtract(self.arr1_col, self.arr2_col)
-        yours = self.v1_col.__sub__(self.v2_col)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_sub_builtin_row_vectors(self):
-        expected = np.subtract(self.arr1_row, self.arr2_row)
-        yours = self.v1_row.__sub__(self.v2_row)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_sub_sign_builtin_column_vectors(self):
-        expected = np.subtract(self.arr1_col, self.arr2_col)
-        yours = self.v1_col - self.v2_col
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_sub_sign_builtin_row_vectors(self):
-        expected = np.subtract(self.arr1_row, self.arr2_row)
-        yours = self.v1_row - self.v2_row
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_rsub_builtin_column_vectors(self):
-        expected = np.subtract(self.arr2_col, self.arr1_col)
-        yours = self.v1_col.__rsub__(self.v2_col)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_rsub_builtin_row_vectors(self):
-        expected = np.subtract(self.arr2_row, self.arr1_row)
-        yours = self.v1_row.__rsub__(self.v2_row)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_truediv_builtin_column_vectors(self):
-        expected = np.true_divide(self.arr1_col, self.s1)
-        yours = self.v1_col.__truediv__(self.s1)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_truediv_builtin_row_vectors(self):
-        expected = np.true_divide(self.arr1_row, self.s1)
-        yours = self.v1_row.__truediv__(self.s1)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_truediv_sign_builtin_column_vectors(self):
-        expected = np.true_divide(self.arr1_col, self.s1)
-        yours = self.v1_col / self.s1
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_truediv_sign_builtin_row_vectors(self):
-        expected = np.true_divide(self.arr1_row, self.s1)
-        yours = self.v1_row / self.s1
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_rtruediv_builtin_column_vectors(self):
-        expected = np.true_divide(self.arr1_col, self.s1)
-        yours = self.v1_col.__rtruediv__(self.s1)
-        self.assertListEqual(yours.values, list(expected))
-
-    def test_rtruediv_builtin_row_vectors(self):
-        expected = np.true_divide(self.arr1_row, self.s1)
-        yours = self.v1_row.__rtruediv__(self.s1)
-        self.assertListEqual(yours.values, list(expected))
-
     def test_mul_builtin_column_vectors(self):
         expected = np.multiply(self.arr1_col, self.s1)
+        expected = list(expected)
         yours = self.v1_col.__mul__(self.s1)
-        self.assertListEqual(yours.values, list(expected))
+        self.assertListEqual(flatten_list(yours.data), flatten_list(expected))
 
     def test_mul_builtin_row_vectors(self):
         expected = np.multiply(self.arr1_row, self.s1)
+        expected = list(expected)
         yours = self.v1_row.__mul__(self.s1)
-        self.assertListEqual(yours.values, list(expected))
+        self.assertListEqual(flatten_list(yours.data), flatten_list(expected))
 
-    def test_mul_sign_builtin_column_vectors(self):
+    def test_mul_sign_builtin_column_vectors_by_scalar(self):
         expected = np.multiply(self.arr1_col, self.s1)
+        expected = list(expected)
         yours = self.v1_col * self.s1
-        self.assertListEqual(yours.values, list(expected))
+        self.assertListEqual(flatten_list(yours.data), flatten_list(expected))
 
-    def test_mul_sign_builtin_row_vectors(self):
+    def test_mul_sign_builtin_row_vectors_by_scalar(self):
         expected = np.multiply(self.arr1_row, self.s1)
+        expected = list(expected)
         yours = self.v1_row * self.s1
-        self.assertListEqual(yours.values, list(expected))
+        self.assertListEqual(flatten_list(yours.data), flatten_list(expected))
 
-    def test_rmul_builtin_column_vectors(self):
+    def test_rmul_builtin_column_vectors_by_scalar(self):
         expected = np.multiply(self.arr1_col, self.s1)
+        expected = list(expected)
         yours = self.v1_col.__rmul__(self.s1)
-        self.assertListEqual(yours.values, list(expected))
+        self.assertListEqual(flatten_list(yours.data), flatten_list(expected))
 
-    def test_rmul_builtin_row_vectors(self):
+    def test_rmul_builtin_row_vectors_by_scalar(self):
         expected = np.multiply(self.arr1_row, self.s1)
+        expected = list(expected)
         yours = self.v1_row.__rmul__(self.s1)
-        self.assertListEqual(yours.values, list(expected))
+        self.assertListEqual(flatten_list(yours.data), flatten_list(expected))
 
     def test_str_magic_method(self):
-        values_expected = [0.0, 1.0, 2.0, 3.0, 4.0]
+        data_expected = [[0.0, 1.0, 2.0, 3.0, 4.0]]
         shape_expected = (1, 5)
-        expected = f"Vector list: "
-        expected += f"{values_expected} and shape: {shape_expected}"
+        expected = f"Vector data: "
+        expected += f"{data_expected} and shape: {shape_expected})"
         yours = self.v1_row.__str__()
         self.assertEqual(yours, expected)
 
     def test_str_ctor_magic_method(self):
-        values_expected = [0.0, 1.0, 2.0, 3.0, 4.0]
+        data_expected = [[0.0, 1.0, 2.0, 3.0, 4.0]]
         shape_expected = (1, 5)
-        expected = f"Vector list: "
-        expected += f"{values_expected} and shape: {shape_expected}"
+        expected = f"Vector data: "
+        expected += f"{data_expected} and shape: {shape_expected})"
         yours = str(self.v1_row)
         self.assertEqual(yours, expected)
 
     def test_repr_magic_method(self):
-        values_expected = [0.0, 1.0, 2.0, 3.0, 4.0]
+        data_expected = [[0.0, 1.0, 2.0, 3.0, 4.0]]
         shape_expected = (1, 5)
-        expected = f"Vector({values_expected}, {shape_expected})"
+        expected = f"Vector({data_expected}, {shape_expected})"
         yours = self.v1_row.__repr__()
         self.assertEqual(yours, expected)
 
@@ -443,90 +448,16 @@ class TestVectorOutput(unittest.TestCase):
         yours = self.v1_row.dot(self.v2_col)
         self.assertEqual(yours, expected)
 
-    def test_dot_row_vector(self):
-        expected = np.dot(self.arr1_row, self.arr2_row)
-        yours = self.v1_row.dot(self.v2_row)
-        self.assertEqual(yours, expected)
-
-    def test_transpose_row_vector(self):
-        expected = np.transpose(self.arr1_row)
-        expected_shape = (5, 1)
-        yours = self.v1_row.T()
-        self.assertListEqual(yours.values, list(expected))
-        self.assertEqual(yours.shape, expected_shape)
-
-    def test_transpose_col_vector(self):
-        expected = self.arr1_row
-        expected_shape = (1, 5)
-        yours = self.v1_col.T()
-        self.assertListEqual(yours.values, list(expected))
-        self.assertEqual(yours.shape, expected_shape)
-
-
-class TestVectorExcept(unittest.TestCase):
-    def test_type_error_float(self):
-        with self.assertRaises(TypeError) as e:
-            i = 3.0
-            expected = f"{type(i)} is not a supported initializer type"
-            Vector(i)
-        self.assertEqual(str(e.exception), expected)
-
-    def test_type_error_range(self):
-        with self.assertRaises(TypeError) as e:
-            i = range(1, 5)
-            expected = f"{type(i)} is not a supported initializer type"
-            Vector(i)
-        self.assertEqual(str(e.exception), expected)
-
-    def test_type_error_add(self):
-        with self.assertRaises(TypeError) as e:
-            v1 = Vector([0.0, 1.0, 2.0, 3.0, 4.0])
-            rhs = 42
-            expected = f"Type {type(rhs)} not supported as an operand"
-            v1.__add__(rhs)
-        self.assertEqual(str(e.exception), expected)
-
-    def test_type_error_sub(self):
-        with self.assertRaises(TypeError) as e:
-            v1 = Vector([0.0, 1.0, 2.0, 3.0, 4.0])
-            rhs = 42
-            expected = f"Type {type(rhs)} not supported as an operand"
-            v1.__sub__(rhs)
-        self.assertEqual(str(e.exception), expected)
-
-    def test_type_error_truediv(self):
-        with self.assertRaises(TypeError) as e:
-            v1 = Vector([0.0, 1.0, 2.0, 3.0, 4.0])
-            rhs = '42'
-            expected = f"Type {type(rhs)} not supported as divisor"
-            v1.__truediv__(rhs)
-        self.assertEqual(str(e.exception), expected)
-
-    def test_value_error_truediv_div_by_zero(self):
-        with self.assertRaises(ValueError) as e:
-            v1 = Vector([0.0, 1.0, 2.0, 3.0, 4.0])
-            rhs = 0
-            expected = f"Division by zero not supported"
-            v1.__truediv__(rhs)
-        self.assertEqual(str(e.exception), expected)
-
-    def test_type_error_mul(self):
-        with self.assertRaises(TypeError) as e:
-            v1 = Vector([0.0, 1.0, 2.0, 3.0, 4.0])
-            rhs = '42'
-            expected = f"Type {type(rhs)} not supported as multiplicator"
-            v1.__mul__(rhs)
-        self.assertEqual(str(e.exception), expected)
-
 
 # Cmd entrypoint for unittest
 if __name__ == '__main__':
-    # unittest.main()
+    unittest.main()
     # unittest.main(defaultTest='suite')
-    loader = unittest.TestLoader()
-    test_cases = (TestMatrixInit, TestMatrixCalculus)
-    suite = unittest.TestSuite()
-    for t in test_cases:
-        tests = loader.loadTestsFromTestCase(t)
-        suite.addTests(tests)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    # loader = unittest.TestLoader()
+    # test_cases =
+    # (TestMatrixInit, TestMatrixCalculus, TestVectorInit, TestVectorOutput)
+    # suite = unittest.TestSuite()
+    # for t in test_cases:
+    # tests = loader.loadTestsFromTestCase(t)
+    # suite.addTests(tests)
+    # unittest.TextTestRunner(verbosity=2).run(suite)
