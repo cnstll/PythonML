@@ -39,14 +39,14 @@ expected = [
 tested_valid = list(zip(x_inputs, theta_inputs, expected))
 # input tests
 @pytest.mark.parametrize("x, thetas, e", tested_valid)
-def test_mean(x, thetas, e):
+def test_simple_predict(x, thetas, e):
     print(x, thetas, e)
     np.testing.assert_array_equal(simple_predict(x, thetas), e)
 
 # invalid inputs
 @pytest.mark.parametrize("invalid", invalid_inputs)
 @pytest.mark.parametrize("thetas", theta_inputs)
-def test_mean_input_error(invalid, thetas):
+def test_simple_predict_error(invalid, thetas):
     assert simple_predict(invalid, thetas) is None
 
 # invalid thetas
