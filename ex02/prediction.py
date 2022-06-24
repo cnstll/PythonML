@@ -1,4 +1,21 @@
 import numpy as np
+
+
+def check_x(x):
+    if isinstance(x, np.ndarray) and \
+       len(x.shape) == 2 and x.shape[0] > 1 and x.shape[1] == 1:
+        return True
+    else:
+        return False
+
+
+def check_thetas(th):
+    if isinstance(th, np.ndarray) and th.shape == (2, 1):
+        return True
+    else:
+        return False
+
+
 def simple_predict(x, theta):
     """Computes the vector of prediction y_hat from two non-empty numpy.array.
         Args:
@@ -12,31 +29,9 @@ def simple_predict(x, theta):
         Raises:
         This function should not raise any Exception.
     """
+    if not check_x(x) or not check_thetas(theta):
+        return None
     y = np.empty_like(x)
     for i, c in enumerate(x):
         y[i] = float(theta[0] + theta[1] * c)
     return y
-
-x = np.arange(1,6).reshape(-1, 1)
-# Example 1:
-theta1 = np.array([[5],[0]])
-print(simple_predict(x, theta1))
-# Ouput:
-# array([[5.],[5.],[5.],[5.],[5.]])
-# Do you understand why y_hat contains only 5’s here?
-# Example 2:
-theta2 = np.array([[0],[1]])
-print(simple_predict(x, theta2))
-# Output:
-# array([[1.],[2.],[3.],[4.],[5.]])
-# Do you understand why y_hat == x here?
-# Example 3:
-theta3 = np.array([[5],[3]])
-print(simple_predict(x, theta3))
-# Output:
-# array([[ 8.],[11.],[14.],[17.],[20.]])
-# Example 4:
-theta4 = np.array([[-3],[1]])
-print(simple_predict(x, theta4))
-# Output:
-# array([[-2.],[-1.],[ 0.],[ 1.],[ 2.]])
