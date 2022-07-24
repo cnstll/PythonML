@@ -4,7 +4,6 @@ import numpy as np
 def check_param(x, theta):
     if any(not isinstance(p, np.ndarray) for p in (x, theta)):
         return False
-    print(f"shapes: {x.shape}, {theta.shape}")
     if any(not np.size(p) for p in (x, theta)):
         return False
     if len(x.shape) == 2 and x.shape[1] != theta.shape[0] - 1:
