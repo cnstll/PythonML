@@ -51,5 +51,4 @@ def gradient(x, y, theta):
     h_0 = x_p.dot(theta)
     diff_outputs = h_0 - y
     vectorized_gradient = x_t.dot(diff_outputs)
-    print(vectorized_gradient)
     return (1/m) * (vectorized_gradient)
