@@ -41,4 +41,4 @@ def predict_(x, theta):
         return None
     x_p = add_ones(x)
     y_hat = x_p.dot(theta)
-    return y_hat.reshape(theta.shape)
+    return y_hat
