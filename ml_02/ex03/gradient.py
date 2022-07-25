@@ -48,7 +48,7 @@ def gradient(x, y, theta):
     m = np.size(y)
     x_p = add_ones(x)
     x_t = np.transpose(x_p)
-    h_0 = x_p.dot(theta)
+    h_0 = x_p @ theta
     diff_outputs = h_0 - y
-    vectorized_gradient = x_t.dot(diff_outputs)
+    vectorized_gradient = x_t @ diff_outputs
     return (1/m) * (vectorized_gradient)
