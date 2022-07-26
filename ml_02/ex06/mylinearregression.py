@@ -28,8 +28,6 @@ class MyLinearRegression():
             return False
         if len(x.shape) == 2 and x.shape[1] != theta.shape[0] - 1:
             return False
-        if len(x.shape) == 1 and x.shape[0] != theta.shape[0] - 1:
-            return False
         if y is not None:
             if not isinstance(y, np.ndarray):
                 return False
@@ -67,8 +65,6 @@ class MyLinearRegression():
         Raises:
         This function should not raise any Exception.
         """
-        if not self.check_param(x, y, current_thetas):
-            return None
         m = np.size(y)
         x_p = self.add_ones(x)
         x_t = np.transpose(x_p)
