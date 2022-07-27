@@ -6,16 +6,36 @@ from polynomial_model import add_polynomial_features as add_pf
 
 
 def display_mse_bar(mse_values):
-    plt.bar(np.arange(1, 7), mse_values, color='#0310BF', edgecolor='gray')
-    plt.show()
+    fig, ax = plt.subplots(label='MSE according to regression degree')
+    ax.bar(np.arange(1, 7), mse_values, color='#3A89FF', edgecolor='gray')
+    ax.tick_params(axis='both', which='major', labelsize=5)
+    ax.tick_params(axis='both', which='minor', labelsize=3)
+    for p in ax.patches:
+        w = p.get_width()
+        h = p.get_height()
+        x, y = p.get_xy()
+        ax.annotate(f"{round(h)}", ((x + w / 2), y + h * 1.02), ha='center',
+                    fontweight='demi')
 
 
+def plot_regression(ax, x, y, mlr, power):
+    continuous_x = np.arange(min(x), max(x) + 0.01, 0.01).reshape(-1, 1)
+    _x = add_pf(continuous_x, power)
+    continuous_y = mlr.predict_(_x)
+    ax.scatter(x, y)
+    ax.plot(continuous_x, continuous_y, color='orange')
+    ax.set_title(f'Regression Degree {power}', size='x-small',
+                 va='center', fontweight='demi')
+    ax.tick_params(axis='both', which='major', labelsize=5)
+    ax.tick_params(axis='both', which='minor', labelsize=3)
+
+
+# Extracting the data from csv to dataframe
 data = pd.read_csv('are_blue_pills_magics.csv')
 x = data['Micrograms'].to_numpy().reshape(-1, 1)
 y = data['Score'].to_numpy().reshape(-1, 1)
-# plt.scatter(x, y)
-# plt.show()
 
+# Model trainings and predictions
 # First Degree model
 alpha = 2.5e-4
 max_iter = 100000
@@ -77,26 +97,19 @@ mlr6.fit_(x6, y)
 y_hat6 = mlr6.predict_(x6)
 mse6 = mlr6.mse_(y, y_hat6)
 
+# Printing and plotting mse value for each model
 print(mse1, mse2, mse3, mse4, mse5, mse6)
 mse_values = np.array([mse1, mse2, mse3, mse4, mse5, mse6])
+display_mse_bar(mse_values)
 
-
-def plot_regression(ax, x, y, mlr, power):
-    continuous_x = np.arange(min(x), max(x) + 0.01, 0.01).reshape(-1, 1)
-    _x = add_pf(continuous_x, power)
-    continuous_y = mlr.predict_(_x)
-    ax.scatter(x, y)
-    ax.plot(continuous_x, continuous_y, color='orange')
-    ax.set_title(f'Regression Degree {power}', size='small')
-
-
+# Plotting each model
 all_mlr = [mlr1, mlr2, mlr3, mlr4, mlr5, mlr6]
 half_len = len(all_mlr) / 2
-fig, axs = plt.subplots(2, 3)
+title = 'Models of the relation between qtt of pills taken and test scores'
+fig, axs = plt.subplots(2, 3, label=title)
 for i, lr in enumerate(all_mlr):
     if i < half_len:
         plot_regression(axs[0, i], x, y, lr, i + 1)
     else:
-        print(i % half_len)
         plot_regression(axs[1, int(i % half_len)], x, y, lr, i + 1)
 plt.show()
