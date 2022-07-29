@@ -6,6 +6,8 @@ def check_param(x, power):
         return False
     if not isinstance(power, int) or power < 0:
         return False
+    if not x.shape == 2 and x.shape[1] != 1:
+        return False
     return True
 
 
