@@ -1,4 +1,9 @@
+from sys import path
+
 import numpy as np
+
+path.insert(0, '../ex00')  # noqa: E402
+from sigmoid import sigmoid_  # noqa: E402
 
 
 def check_param(x, theta):
@@ -9,20 +14,6 @@ def check_param(x, theta):
     if len(x.shape) == 2 and x.shape[1] != theta.shape[0] - 1:
         return False
     return True
-
-
-def sigmoid_(x):
-    """
-    Compute the sigmoid of a vector.
-    Args:
-    x: has to be a numpy.ndarray of shape (m, 1).
-    Returns:
-    The sigmoid value as a numpy.ndarray of shape (m, 1).
-    None if x is an empty numpy.ndarray.
-    Raises:
-    This function should not raise any Exception.
-    """
-    return 1 / (1 + np.exp(-x))
 
 
 def add_ones(x):
