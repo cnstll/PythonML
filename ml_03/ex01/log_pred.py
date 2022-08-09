@@ -1,8 +1,11 @@
-from sys import path
+import os
+import sys
 
 import numpy as np
 
-path.insert(0, '../ex00')  # noqa: E402
+dir_executed_file = os.path.dirname(__file__)
+file_path = os.path.join(dir_executed_file, '..', 'ex00')
+sys.path.insert(0, file_path)
 from sigmoid import sigmoid_  # noqa: E402
 
 
