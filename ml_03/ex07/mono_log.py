@@ -2,8 +2,10 @@ import os
 import sys
 from math import ceil
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 # Importing logistic prediction function from ex01
 dir_executed_file = os.path.dirname(__file__)
@@ -62,7 +64,7 @@ def parse_arguments():
 
 
 def extract_data():
-    """Extract data from both csv available
+    """Extract data from both csv available and join
 
     Returns:
         DataFrame: panda dataframe with left join data
@@ -71,10 +73,43 @@ def extract_data():
     abs_path = os.path.dirname(__file__)
     features_csv = 'solar_system_census.csv'
     zip_csv = 'solar_system_census_planets.csv'
-    features_df = pd.read_csv(os.path.join(abs_path, features_csv),
-                              index_col=0)
-    zip_df = pd.read_csv(os.path.join(abs_path, zip_csv), index_col=0)
-    return features_df.join(zip_df)
+    try:
+        features_df = pd.read_csv(os.path.join(abs_path, features_csv),
+                                  index_col=0)
+        zip_df = pd.read_csv(os.path.join(abs_path, zip_csv), index_col=0)
+        return features_df.join(zip_df)
+    except Exception:
+        return None
+
+
+def preprocess_data(data, zip):
+    # Replace non zip values by -1
+    # Split extracted data into x and y with y the Origin (zipcode)
+    # of the citizens
+    y = data.iloc[:, 3:4].to_numpy()
+    x = data.iloc[:, 0:3].to_numpy()
+    y[(y != zip)] = -1
+    y[(y == zip)] = 1
+    y[(y == -1)] = 0
+    return data_spliter(x, y, 0.8)
+
+
+def compute_accuracy(y, y_hat):
+    accuracy = 0.0
+    total = y.shape[0]
+    diff = np.power(y - y_hat, 2)
+    error = sum(diff.flatten())
+    accuracy = 1 - error / total
+    return accuracy
+
+
+def plot_log_reg(x_test, y_test, y_hat):
+    df = pd.DataFrame(x_test, columns=['weight', 'height', 'bone_density'])
+    df = df.join(pd.DataFrame(y_hat, columns=['predicted_zip']))
+    df = df.join(pd.DataFrame(y_test, columns=['real_zip']))
+    sns.pairplot(x_vars=['weight', 'height', 'bone_density'],
+                 y_vars110=['predicted_zip', 'real_zip'], data=df)
+    plt.show()
 
 
 def main():
@@ -83,22 +118,16 @@ def main():
         print("Usage: python mono_log.py –zipcode=[valid_zip]")
         sys.exit()
     data = extract_data()
-    # Split extracted data into x and y with y the Origin (zipcode)
-    # of the citizens
-    y = data.iloc[:, 3:4].to_numpy()
-    x = data.iloc[:, 0:3].to_numpy()
-    # Replace non zip values by -1
-    y[(y != zip)] = -1
-    y[(y == zip)] = 1
-    y[(y == -1)] = 0
-    x_train, x_test, y_train, y_test = data_spliter(x, y, 0.8)
-    thetas = np.ones((x.shape[1] + 1, 1))
+    x_train, x_test, y_train, y_test = preprocess_data(data, zip)
+    thetas = np.ones((x_train.shape[1] + 1, 1))
     alpha = 1.e-3
     max_iter = int(1e5)
     my_mlr = MLR(thetas, alpha, max_iter)
     my_mlr.fit_(x_train, y_train)
     y_hat = my_mlr.predict_(x_test)
-    print(my_mlr.loss_(y_test, y_hat))
+    print('loss: ', my_mlr.loss_(y_test, y_hat))
+    print('acc: ', compute_accuracy(y_test, y_hat))
+    plot_log_reg(x_test, y_test, y_hat)
 
 
 if __name__ == '__main__':
