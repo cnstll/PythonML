@@ -1,9 +1,11 @@
 import numpy as np
 
 
-def check_param(x, y, theta):
+def check_param(x, y, theta, lambda_):
     if any(not isinstance(p, np.ndarray) for p in (x, y, theta)):
         return False
+    if not isinstance(lambda_, float):
+        return None
     if any(not np.size(p) for p in (x, y, theta)):
         return False
     if x.shape[0] != y.shape[0]:
@@ -65,7 +67,7 @@ def reg_linear_grad(y, x, theta, lambda_):
     Raises:
     This function should not raise any Exception.
     """
-    if not check_param(x, y, theta):
+    if not check_param(x, y, theta, lambda_):
         return None
     m = np.size(y)
     n = np.size(theta, axis=0)
@@ -101,7 +103,7 @@ def vec_reg_linear_grad(y, x, theta, lambda_):
     Raises:
     This function should not raise any Exception.
     """
-    if not check_param(x, y, theta):
+    if not check_param(x, y, theta, lambda_):
         return None
     m = np.size(y)
     x_p = add_ones(x)
