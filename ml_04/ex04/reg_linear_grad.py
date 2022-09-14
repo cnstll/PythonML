@@ -73,12 +73,13 @@ def reg_linear_grad(y, x, theta, lambda_):
     n = np.size(theta, axis=0)
     x_p = add_ones(x)
     gradient = np.zeros_like(theta)
-    gradient[0] = np.sum([(predict(x_p[i], theta) - y[i])
+    y_hat = predict(x_p, theta)
+    gradient[0] = np.sum([(y_hat[i] - y[i])
                          for i in range(0, m)], dtype=float)
     for j in range(1, n):
         sum = 0
         for i in range(0, m):
-            sum += (predict(x_p[i], theta) - y[i]) * \
+            sum += (y_hat[i] - y[i]) * \
                 x_p[i][j]
         gradient[j] = sum + lambda_ * theta[j]
     return (1 / m) * (gradient)
