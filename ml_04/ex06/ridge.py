@@ -23,8 +23,7 @@ class MyRidge:
     def get_params_(self) -> dict:
         return self.__dict__
 
-    @staticmethod
-    def l2(thetas):
+    def l2(self):
         """Computes the L2 regularization of a non-empty numpy.ndarray,
         without any for-loop.
         Returns:
@@ -36,7 +35,7 @@ class MyRidge:
         if not isinstance(thetas, np.ndarray) or \
                 thetas.size == 0:
             return None
-        if len(thetas.shape) == 2 and thetas.shape[1] != 1:
+        if len(thetas.shape) == 2 and self.shape[1] != 1:
             return None
         p_theta = np.copy(thetas)
         p_theta[0] = 0
@@ -85,14 +84,12 @@ class MyRidge:
         for k, v in params.items():
             self.__dict__[k] = v
 
-    @staticmethod
     def loss_(self, y_hat, y) -> float:
-        squared_error = MyRidge.loss_elem_(y_hat, y)
+        squared_error = self.loss_elem_(y_hat, y)
         m = len(y)
         weighted = float(1 / (2 * m))
         return weighted * (squared_error)
 
-    @staticmethod
     def loss_elem_(self, y_hat, y):
         if any(not isinstance(p, np.ndarray) for p in (y_hat, y)):
             return None
@@ -102,7 +99,7 @@ class MyRidge:
             return None
         diff = y_hat - y
         squared_error = np.sum(diff.T @ diff, dtype=float)
-        reg_term = MyRidge.l2(thetas)
+        reg_term = MyRidge.l2(self.thetas)
         return squared_error + self.lambda_ * reg_term
 
     @staticmethod
@@ -134,7 +131,7 @@ class MyRidge:
             Raises:
             This function should not raise any Exception.
         """
-        if not self.check_param(x, self.thetas):
+        if not self.check_param_x(x, self.thetas):
             return None
         y_hat = MyRidge.add_ones(x).dot(self.thetas)
         return y_hat
@@ -185,19 +182,18 @@ class MyRidge:
             Raises:
             This function should not raise any Exception.
         """
-        if self.check_param_x_y(x, y, self.thetas):
+        if not self.check_param_x_y(x, y, self.thetas):
             return None
         for i in range(0, self.max_iter):
             tmp_thetas = np.copy(self.thetas)
             self.thetas = tmp_thetas - self.alpha * \
                 self.gradient_(x, y, tmp_thetas)
-            if tmp_thetas - self.thetas < 1e-9 \
-                    and tmp_thetas - self.thetas > -1e-9:
+            if np.sum(tmp_thetas - self.thetas, dtype=float) < 1e-9 \
+                    and np.sum(tmp_thetas - self.thetas, dtype=float) > -1e-9:
                 print(f"Loop stopped on {i} iteration")
                 break
 
-    @staticmethod
-    def mse_(y, y_hat):
+    def mse_(self, y, y_hat):
         """
         Description:
         Calculate the MSE between the predicted output and the real output.
@@ -210,7 +206,7 @@ class MyRidge:
         Raises:
         This function should not raise any Exception.
         """
-        mse = MyRidge.loss_(y, y_hat) * 2
+        mse = self.loss_(y, y_hat) * 2
         return mse
 
 
