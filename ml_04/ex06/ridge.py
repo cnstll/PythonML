@@ -102,7 +102,7 @@ class MyRidge:
         diff = y_hat - y
         squared_error = np.sum(diff.T @ diff, dtype=float)
         reg_term = self.l2(thetas)
-        return squared_error + + self.lambda_ * reg_term
+        return squared_error + self.lambda_ * reg_term
 
     def add_ones(x):
         """Insert ones in the first column of the matrix x
