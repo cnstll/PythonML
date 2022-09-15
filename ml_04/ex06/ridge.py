@@ -1,6 +1,5 @@
 
 import numpy as np
-from ml_04.ex04.reg_linear_grad import add_ones
 
 
 class MyRidge:
@@ -86,12 +85,14 @@ class MyRidge:
         for k, v in params.items():
             self.__dict__[k] = v
 
+    @staticmethod
     def loss_(self, y_hat, y) -> float:
-        squared_error = self.loss_elem_(y_hat, y)
+        squared_error = MyRidge.loss_elem_(y_hat, y)
         m = len(y)
         weighted = float(1 / (2 * m))
         return weighted * (squared_error)
 
+    @staticmethod
     def loss_elem_(self, y_hat, y):
         if any(not isinstance(p, np.ndarray) for p in (y_hat, y)):
             return None
@@ -101,9 +102,10 @@ class MyRidge:
             return None
         diff = y_hat - y
         squared_error = np.sum(diff.T @ diff, dtype=float)
-        reg_term = self.l2(thetas)
+        reg_term = MyRidge.l2(thetas)
         return squared_error + self.lambda_ * reg_term
 
+    @staticmethod
     def add_ones(x):
         """Insert ones in the first column of the matrix x
         Args:
@@ -134,7 +136,7 @@ class MyRidge:
         """
         if not self.check_param(x, self.thetas):
             return None
-        y_hat = add_ones(x).dot(self.thetas)
+        y_hat = MyRidge.add_ones(x).dot(self.thetas)
         return y_hat
 
     def gradient_(self, x, y, tmp_thetas):
@@ -154,7 +156,7 @@ class MyRidge:
             This function should not raise any Exception.
         """
         m = np.size(y)
-        x_p = add_ones(x)
+        x_p = MyRidge.add_ones(x)
         x_t = np.transpose(x_p)
         h_0 = x_p.dot(tmp_thetas)
         diff_outputs = h_0 - y
@@ -193,6 +195,23 @@ class MyRidge:
                     and tmp_thetas - self.thetas > -1e-9:
                 print(f"Loop stopped on {i} iteration")
                 break
+
+    @staticmethod
+    def mse_(y, y_hat):
+        """
+        Description:
+        Calculate the MSE between the predicted output and the real output.
+        Args:
+        y: has to be a numpy.array, a vector of shape m * 1.
+        y_hat: has to be a numpy.array, a vector of shape m * 1.
+        Returns:
+        mse: has to be a float.
+        None if there is a matching shape problem.
+        Raises:
+        This function should not raise any Exception.
+        """
+        mse = MyRidge.loss_(y, y_hat) * 2
+        return mse
 
 
 if __name__ == '__main__':
