@@ -24,7 +24,8 @@ class MyRidge:
     def get_params_(self) -> dict:
         return self.__dict__
 
-    def l2(self):
+    @staticmethod
+    def l2(thetas):
         """Computes the L2 regularization of a non-empty numpy.ndarray,
         without any for-loop.
         Returns:
@@ -33,12 +34,12 @@ class MyRidge:
         Raises:
         This function should not raise any Exception.
         """
-        if not isinstance(self.theta, np.ndarray) or \
-                self.theta.size == 0:
+        if not isinstance(thetas, np.ndarray) or \
+                thetas.size == 0:
             return None
-        if len(self.theta.shape) == 2 and self.theta.shape[1] != 1:
+        if len(thetas.shape) == 2 and thetas.shape[1] != 1:
             return None
-        p_theta = np.copy(self.theta)
+        p_theta = np.copy(thetas)
         p_theta[0] = 0
         return np.sum(np.dot(p_theta.T, p_theta), dtype=float)
 
@@ -89,11 +90,9 @@ class MyRidge:
         squared_error = self.loss_elem_(y_hat, y)
         m = len(y)
         weighted = float(1 / (2 * m))
-        reg_term = self.l2(self.theta)
-        return weighted * (squared_error + self.lambda_ * reg_term)
+        return weighted * (squared_error)
 
-    @staticmethod
-    def loss_elem_(y_hat, y):
+    def loss_elem_(self, y_hat, y):
         if any(not isinstance(p, np.ndarray) for p in (y_hat, y)):
             return None
         if any(not np.size(p) for p in (y_hat, y)):
@@ -102,7 +101,8 @@ class MyRidge:
             return None
         diff = y_hat - y
         squared_error = np.sum(diff.T @ diff, dtype=float)
-        return squared_error
+        reg_term = self.l2(thetas)
+        return squared_error + + self.lambda_ * reg_term
 
     def add_ones(x):
         """Insert ones in the first column of the matrix x
